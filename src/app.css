@@ -1,1 +1,69 @@
 @import 'tailwindcss';
+
+@theme {
+    --font-aspekta: "Aspekta", sans-serif;
+    --color-surface: #F2EDEA;
+    --color-surface-550: #ECDFDC;
+    --color-surface-600: #E4D5D2;
+    --color-primary: #473828;
+}
+
+@layer base {
+  :root {
+    --color-surface: #F2EDEA;
+    --color-primary: #473828;
+
+    --text-lg: 1.1rem;
+    --text-md: 1rem;
+    --text-sm: 0.9rem;
+  }
+
+}
+
+@layer components {
+    h1 {
+        font-size: var(--text-lg);
+        font-weight: 500;
+        line-height: 1.2;
+    }
+
+    h2 {
+        font-size: var(--text-md);
+    }
+
+    h3 {
+        font-size: var(--text-sm);
+        opacity: 0.5;
+    }
+
+    p {
+        font-size: var(--text-sm);
+    }
+
+    .icon-button {
+      @apply opacity-50 hover:opacity-100 transition-opacity duration-150 cursor-pointer h-6 p-0.5;
+    }
+    
+}
+
+
+@font-face {
+  font-family: Aspekta;
+  font-style: normal;
+  font-weight: 400;
+  src: url("/fonts/aspekta/Aspekta-400.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: Aspekta;
+  font-style: medium;
+  font-weight: 500;
+  src: url("/fonts/aspekta/Aspekta-500.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: Aspekta;
+  font-style: bold;
+  font-weight: 600;
+  src: url("/fonts/aspekta/Aspekta-600.woff2") format("woff2");
+}
