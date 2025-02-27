@@ -5,33 +5,46 @@
     --color-surface: #F2EDEA;
     --color-surface-550: #ECDFDC;
     --color-surface-600: #E4D5D2;
+    --color-surface-700: #bbb3b1;
     --color-primary: #473828;
+    --color-activeSymbol: #18D651;
+
+
 }
 
 @layer base {
   :root {
     --color-surface: #F2EDEA;
     --color-primary: #473828;
-
+    --color-activeSymbol: #18D651;
+    --text-xl: 1.3rem;
     --text-lg: 1.1rem;
     --text-md: 1rem;
     --text-sm: 0.9rem;
+
+    --drop-shadow-activeSymbol: 0 0 4px 2px rgba(62, 234, 114, 0.5); 
   }
 
 }
 
 @layer components {
     h1 {
-        font-size: var(--text-lg);
+        font-size: var(--text-xl);
         font-weight: 500;
         line-height: 1.2;
     }
 
     h2 {
-        font-size: var(--text-md);
+        font-size: var(--text-lg);
+        line-height: 1.2;
     }
 
     h3 {
+        font-size: var(--text-md);
+        opacity: 0.5;
+    }
+
+    h4 {
         font-size: var(--text-sm);
         opacity: 0.5;
     }
