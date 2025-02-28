@@ -136,8 +136,8 @@
         mouseY = e.touches[0].clientY;
 
         if (isSwiping) {
+            e.preventDefault(); // Only prevent default when swiping
             swipeDeltaX = mouseX - swipeStartX;
-            // console.log(swipeDeltaX);
 
             swipeOpacity = (swipeDeltaX*(swipeDirection*-1)) / SWIPE_SCALE_DIST;
             swipeOpacity = Math.max(0, Math.min(1, swipeOpacity));
@@ -151,7 +151,7 @@
 
 <svelte:window 
     on:mousemove={handleMouseMove}
-    on:touchmove|preventDefault|nonpassive={handleTouchMove}
+    on:touchmove={handleTouchMove}
 />
 
 <header class="md:mt-18 mt-8 flex justify-between">
