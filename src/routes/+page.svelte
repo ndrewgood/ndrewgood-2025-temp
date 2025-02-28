@@ -96,11 +96,11 @@
     let swipeScale = 1;
     let swipeOpacity = 0;
 
-    function handleSwipeStart(direction: number) {
+    function handleSwipeStart(direction: number, e?: TouchEvent) {
         clickDetection = true;
         swipeDirection = direction;
         isSwiping = true;
-        swipeStartX = mouseX;
+        swipeStartX = e?.touches ? e.touches[0].clientX : mouseX;
     }
 
     function handleSwipeEnd() {
@@ -128,15 +128,30 @@
             
             swipeScale = SWIPE_SCALE_MIN + ((swipeDeltaX*(swipeDirection*-1)) / SWIPE_SCALE_DIST) * (SWIPE_SCALE_MAX - SWIPE_SCALE_MIN);
             swipeScale = Math.max(SWIPE_SCALE_MIN, Math.min(SWIPE_SCALE_MAX, swipeScale));
-            console.log(swipeOpacity);
+        }
+    }
+
+    function handleTouchMove(e: TouchEvent) {
+        mouseX = e.touches[0].clientX;
+        mouseY = e.touches[0].clientY;
+
+        if (isSwiping) {
+            swipeDeltaX = mouseX - swipeStartX;
+            // console.log(swipeDeltaX);
+
+            swipeOpacity = (swipeDeltaX*(swipeDirection*-1)) / SWIPE_SCALE_DIST;
+            swipeOpacity = Math.max(0, Math.min(1, swipeOpacity));
+            
+            swipeScale = SWIPE_SCALE_MIN + ((swipeDeltaX*(swipeDirection*-1)) / SWIPE_SCALE_DIST) * (SWIPE_SCALE_MAX - SWIPE_SCALE_MIN);
+            swipeScale = Math.max(SWIPE_SCALE_MIN, Math.min(SWIPE_SCALE_MAX, swipeScale));
         }
     }
 
 </script>
 
 <svelte:window 
-
-    on:mousemove={handleMouseMove} 
+    on:mousemove={handleMouseMove}
+    on:touchmove|preventDefault|nonpassive={handleTouchMove}
 />
 
 <header class="md:mt-18 mt-8 flex justify-between">
@@ -298,7 +313,7 @@
                 class="w-1/3 h-full absolute top-0 left-0 cursor-grab active:cursor-grabbing"
                 aria-label="Swipe navigation control"
                 on:mousedown={() => handleSwipeStart(-1)}
-                on:touchstart|preventDefault={() => handleSwipeStart(-1)}
+                on:touchstart|preventDefault={(e) => handleSwipeStart(-1, e)}
                 on:mouseup={() => handleSwipeEnd()}
                 on:touchend={() => handleSwipeEnd()}
                 type="button"
@@ -315,7 +330,7 @@
                 class="w-1/3 h-full absolute top-0 right-0 cursor-grab active:cursor-grabbing"
                 aria-label="Swipe navigation control"
                 on:mousedown={() => handleSwipeStart(1)}
-                on:touchstart|preventDefault={() => handleSwipeStart(1)}
+                on:touchstart|preventDefault={(e) => handleSwipeStart(1, e)}
                 on:mouseup={() => handleSwipeEnd()}
                 on:touchend={() => handleSwipeEnd()}
                 type="button"
@@ -453,7 +468,7 @@
             style:transition-timing-function={'cubic-bezier(0.16, 1, 0.3, 1)'}
         ></div>
     </div>
-    <div class="flex justify-between items-center min-h-8">
+    <div class="flex justify-left items-center min-h-8">
         {#if projects[activeProjectIndex].urlLabel}
             <a 
                 href={projects[activeProjectIndex].url} 
@@ -466,10 +481,6 @@
                 {projects[activeProjectIndex].urlLabel}
             </a>
         {/if}
-        <p 
-            class="text-sm md:hidden flex text-right"
-            style:opacity={!afterFirstSwipe ? 0.3 : 0}
-        >Trying swiping left and right on the video</p>
     </div>
 </section>
 
