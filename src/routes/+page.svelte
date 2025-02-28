@@ -41,7 +41,6 @@
     let timeUpdateInterval: ReturnType<typeof setInterval>;
 
     let isHoveringOverVideo = false;
-    let mouseIsPressed = false;
     let hoverIcon = 'pause';
 
     onMount(() => {
@@ -78,17 +77,63 @@
     let hoverAmount = 0;
     let activePortfolioIndex = 0;
 
-    // Mouse tracking
+    // Mobile swipe
+
+    const SWIPE_SCALE_MIN = 2;
+    const SWIPE_SCALE_MAX = 3;
+    const SWIPE_SCALE_DIST = 150;
+
     let mouseX = 0;
     let mouseY = 0;
 
-    function handleMouseMove(event: MouseEvent) {
-        mouseX = event.clientX;
-        mouseY = event.clientY;
+    let isSwiping = false;
+    let swipeDirection = 1;
+    let clickDetection = false
+
+    let swipeStartX = 0;
+    let swipeDeltaX = 0;
+    let swipeScale = 1;
+    let swipeOpacity = 0;
+
+    function handleSwipeStart(direction: number) {
+        clickDetection = true;
+        swipeDirection = direction;
+        isSwiping = true;
+        swipeStartX = mouseX;
     }
+
+    function handleSwipeEnd() {
+        if (swipeOpacity == 1) {
+            changeProjectVideo(swipeDirection);
+        }
+        isSwiping = false;
+        swipeStartX = 0;
+        swipeScale = 1;
+        swipeOpacity = 0;
+    }
+
+    function handleMouseMove(e: MouseEvent) {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+
+        if (isSwiping) {
+            swipeDeltaX = mouseX - swipeStartX;
+
+            swipeOpacity = (swipeDeltaX*(swipeDirection*-1)) / SWIPE_SCALE_DIST;
+            swipeOpacity = Math.max(0, Math.min(1, swipeOpacity));
+            
+            swipeScale = SWIPE_SCALE_MIN + ((swipeDeltaX*(swipeDirection*-1)) / SWIPE_SCALE_DIST) * (SWIPE_SCALE_MAX - SWIPE_SCALE_MIN);
+            swipeScale = Math.max(SWIPE_SCALE_MIN, Math.min(SWIPE_SCALE_MAX, swipeScale));
+            console.log(swipeOpacity);
+        }
+    }
+
 </script>
 
-<svelte:window on:mousemove={handleMouseMove}/>
+<svelte:window 
+
+    on:mousemove={handleMouseMove} 
+/>
 
 <header class="md:mt-18 mt-8 flex justify-between">
     <div class="name">
@@ -158,16 +203,6 @@
 </header>
 
 <section class="mt-24 flex flex-col gap-4">
-    <div
-        class="fixed left-0 top-0 z-50 pointer-events-none -translate-x-1/2 -translate-y-1/2 drop-shadow-lg"
-        style:scale={mouseIsPressed ? 1.4 : 1.5}
-        style:opacity={isHoveringOverVideo ? '1' : '0'}
-        style:left={mouseX + 'px'}
-        style:top={mouseY + 'px'}
-        style:transition={'scale 0.1s ease-in-out'}
-    >
-        <Icon name={hoverIcon} color="--color-white" />
-    </div>
     <div class="flex justify-between items-center">
         <div class="flex gap-3 items-center">
             <div 
@@ -193,8 +228,9 @@
                         target="_blank" 
                         in:fade|global={{ duration: 100 }}
                         out:fade|global={{ duration: 100 }}
-                        class="text-sm font-medium bg-surface-600 hover:bg-surface-700 transition-colors duration-150 px-3 py-1 rounded-full opacity-50"
+                        class="text-sm md:flex hidden gap-1 items-center font-medium bg-surface-600 hover:bg-surface-700 transition-colors duration-150 pr-4 pl-1 py-1 rounded-full opacity-50"
                     >
+                        <Icon name="globe" />
                         {projects[activeProjectIndex].urlLabel}
                     </a>
                 {/if}
@@ -222,17 +258,78 @@
                 {/each}
             </div>
     </div>
-    <div class="aspect-[4/3] w-full relative overflow-hidden rounded-xl">
+    <div class="aspect-[4/3] w-full relative">
+
+        <!-- Mobile video controls -->
         <div 
-            class="absolute top-0 left-0 w-full h-full flex justify-center items-center z-10 cursor-none"
+            class="w-full h-full md:hidde absolute top-0 left-0 z-20 cursor-pointer"
+            role="presentation"
+            on:click={() => {
+                if (swipeDeltaX == 0){
+                    if (isPlaying) {
+                        player.pause();
+                        hoverIcon = "play";
+                    } else {
+                        player.play();
+                        hoverIcon = "pause";
+                    }
+                    isPlaying = !isPlaying;
+                }
+                swipeDeltaX = 0;
+            }}
+            on:keydown={(e: KeyboardEvent) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    if (!isPlaying) {
+                        player.play();
+                        isPlaying = true;
+                    }
+                }
+            }}
+
+            on:mouseleave={() => isSwiping ? handleSwipeEnd() : null}
+            on:mouseup={() => isSwiping ? handleSwipeEnd() : null}
+        >
+            <button 
+                class="w-1/3 h-full absolute top-0 left-0 cursor-grab active:cursor-grabbing"
+                aria-label="Swipe navigation control"
+                on:mousedown={() => handleSwipeStart(-1)}
+                on:mouseup={() => handleSwipeEnd()}
+                type="button"
+            >
+                <div 
+                    class="flex justify-center items-center"
+                    style:transform={isSwiping && swipeDirection === -1 ? `scale(${swipeScale})` : 'scale(1)'}
+                    style:opacity={swipeDirection === -1 ? swipeOpacity : 0}
+                >
+                    <Icon name="backwards" color="--color-white" />
+                </div>
+            </button>
+            <button 
+                class="w-1/3 h-full absolute top-0 right-0 cursor-grab active:cursor-grabbing"
+                aria-label="Swipe navigation control"
+                on:mousedown={() => handleSwipeStart(1)}
+                on:mouseup={() => handleSwipeEnd()}
+                type="button"
+            >
+                <div 
+                    class="flex justify-center items-center"
+                    style:transform={isSwiping && swipeDirection === 1 ? `scale(${swipeScale})` : 'scale(1)'}
+                    style:opacity={swipeDirection === 1 ? swipeOpacity : 0}
+                >
+                    <Icon name="forwards" color="--color-white" />
+                </div>
+            </button>
+        </div>
+
+        <!-- Desktop video controls -->
+        <div 
+            class="absolute top-0 left-0 w-full h-full md:flex hidden justify-center items-center z-10 cursor-pointer"
             role="presentation"
             on:mouseenter={() => isHoveringOverVideo = true}
             on:mouseleave={() => isHoveringOverVideo = false}
-            on:mousedown={() => mouseIsPressed = true}
-            on:mouseup={() => mouseIsPressed = false}
         >
             <div 
-                class="w-1/5 h-full opacity-0"
+                class="w-1/5 h-full flex justify-center items-center relative"
                 role="button"
                 tabindex="0"
                 on:mouseenter={() => hoverIcon = "backwards"}
@@ -242,7 +339,21 @@
                         changeProjectVideo(-1)
                     }
                 }}
-            ></div>
+            >
+                <div 
+                    class="drop-shadow-xl"
+                    style:opacity={isHoveringOverVideo && hoverIcon === "backwards" ? 1 : isHoveringOverVideo ? '0.7' : '0'}
+                    style:transform={isHoveringOverVideo && hoverIcon === "backwards" ? 'scale(1.4)' : 'scale(1.2)'}
+                    style:transition={'transform 0.1s ease-in-out, opacity 0.2s ease-in-out'}
+                >
+                    <Icon name="backwards" color="--color-white" />
+                </div>
+                <div 
+                    class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-black/ rounded-full -z-10"
+                    style:filter={'blur(20px)'}
+                    style:opacity={isHoveringOverVideo ? '0.2' : '0'}
+                ></div>
+            </div>
             <div class="w-3/5 h-full opacity-0"
                 role="button"
                 tabindex="0"
@@ -267,7 +378,7 @@
                 }}
             ></div>
             <div 
-                class="w-1/5 h-full opacity-0"
+                class="w-1/5 h-full flex justify-center items-center relative"
                 role="button"
                 tabindex="0"
                 on:mouseenter={() => hoverIcon = "forwards"}
@@ -277,33 +388,75 @@
                         changeProjectVideo(1)
                     }
                 }}
-            ></div>
+            >
+                <div 
+                    class="drop-shadow-xl"
+                    style:opacity={isHoveringOverVideo && hoverIcon === "forwards" ? 1 : isHoveringOverVideo ? '0.7' : '0'}
+                    style:transform={isHoveringOverVideo && hoverIcon === "forwards" ? 'scale(1.2)' : 'scale(1)'}
+                    style:transition={'transform 0.1s ease-in-out, opacity 0.1s ease-in-out'}
+                >
+                    <Icon name="forwards" color="--color-white" />
+                </div>
+            </div>
         </div>
-        <mux-player
-            bind:this={player}
-            on:loadstart={() => { isLoading = true }}
-            on:loadeddata={() => { 
-                isLoading = false; 
-                currentDuration = player.duration;
-                isPlaying = true;
-            }}
-            class="aspect-[4/3] rounded-xl overflow-hidden cursor-pointer"
+        <div 
+            class="relative aspect-[4/3] rounded-xl overflow-hidden cursor-pointer"
             class:opacity-0={isTransitioning || isLoading}
-            style:transform={isTransitioning || isLoading || !isPlaying ? 'scale(0.97)' : 'scale(1.01)'}
+            style:transform-style={'preserve-3d'}
+            style:transform={isTransitioning || isLoading || !isPlaying ? 'scale(0.97)' : 'scale(1)'}
             style:transition={'transform 0.3s ease-in-out, opacity 0.3s ease-in-out'}
             style:transition-timing-function={'cubic-bezier(0.16, 1, 0.3, 1)'}
-            playback-id={projects[activeProjectIndex].muxID}
-            autoplay="true"
-            loop="true"
-            muted="true"
-            preload="auto"
-        ></mux-player>
+        >
+            <mux-player
+                bind:this={player}
+                on:loadstart={() => { isLoading = true }}
+                on:loadeddata={() => { 
+                    isLoading = false; 
+                    currentDuration = player.duration;
+                    isPlaying = true;
+                }}
+                style:transform={'scale(1.01)'}
+                class="aspect-[4/3] rounded-xl overflow-hidden"
+                playback-id={projects[activeProjectIndex].muxID}
+                autoplay="true"
+                loop="true"
+                muted="true"
+                preload="auto"
+            ></mux-player>
+        </div>
+
+        <!-- <div 
+            class="absolute top-1/2 -translate-y-1/2 bg-surface-600 w-full h-[calc(100%-30px)] -z-10 rounded-xl"
+            style:left={isHoveringOverVideo && !isTransitioning && !isLoading && hoverIcon === "backwards" ? '-30px' : isHoveringOverVideo && !isTransitioning && !isLoading && hoverIcon === "forwards" ? '30px' : '0px'}
+            style:transform={isHoveringOverVideo && !isPlaying && hoverIcon === "backwards" ? 'rotate(-1deg) scale(0.97)'
+                : isHoveringOverVideo && !isTransitioning && !isLoading && hoverIcon === "backwards" ? 'rotate(-1deg)'
+                    : isHoveringOverVideo && !isPlaying && hoverIcon === "forwards" ? 'rotate(1deg) scale(0.97)' 
+                        : isHoveringOverVideo && !isTransitioning && !isLoading && hoverIcon === "forwards" ? 'rotate(1deg)' 
+                            : isTransitioning || isLoading || !isPlaying ? 'scale(0.97)' : 'scale(1)'}
+            style:transition={'left 0.3s ease-in-out, transform 0.3s ease-in-out'}
+            style:transition-timing-function={'cubic-bezier(0.16, 1, 0.3, 1)'}
+        ></div> -->
+
         <div 
             class="absolute left-0 top-0 bg-surface-600 w-full -z-10 aspect-[4/3] rounded-xl"
             style:transform={isTransitioning || isLoading || !isPlaying ? 'scale(0.97)' : 'scale(1)'}
             style:transition={'transform 0.3s ease-in-out, opacity 0.3s ease-in-out'}
             style:transition-timing-function={'cubic-bezier(0.16, 1, 0.3, 1)'}
         ></div>
+    </div>
+    <div class="flex justify-left min-h-8">
+        {#if projects[activeProjectIndex].urlLabel}
+            <a 
+                href={projects[activeProjectIndex].url} 
+                target="_blank" 
+                in:fade|global={{ duration: 100 }}
+                out:fade|global={{ duration: 100 }}
+                class="text-sm md:hidden flex gap-1 items-center font-medium bg-surface-600 hover:bg-surface-700 transition-colors duration-150 pr-4 pl-1 py-1 rounded-full opacity-50"
+            >
+                <Icon name="globe" />
+                {projects[activeProjectIndex].urlLabel}
+            </a>
+        {/if}
     </div>
 </section>
 
@@ -340,16 +493,18 @@
             {/if}
             {#each portfolios as portfolio, i}
                 <a 
-                    href={portfolio.url} 
+                    href={portfolio.url}
+                    target="_blank"
                     class="group w-full flex flex-row justify-between items-center py-4 px-6 rounded-xl transition-colors duration-150 cursor-pointer"
                     on:mouseenter={() => {hoverAmount++; activePortfolioIndex = i}}
                     in:fade|global={{ duration: 400, delay: 15 * i + 150 }}
                 >
                     <div class="flex flex-col justify-between">
-                        <div class="flex flex-row gap-1.5 transition-all duration-150">
+                        <div class="flex flex-row transition-all duration-150">
                             <div 
                                 class="transition-all duration-150 overflow-hidden"
                                 style:width={activePortfolioIndex === i && portfoliosHovered ? '20px' : '0px'}
+                                style:margin-right={activePortfolioIndex === i && portfoliosHovered ? '6px' : '0px'}
                             >
                                 {#if activePortfolioIndex === i && portfoliosHovered}
                                     <img 
