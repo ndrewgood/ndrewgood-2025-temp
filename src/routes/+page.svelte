@@ -89,6 +89,7 @@
     let isSwiping = false;
     let swipeDirection = 1;
     let clickDetection = false
+    let afterFirstSwipe = false;
 
     let swipeStartX = 0;
     let swipeDeltaX = 0;
@@ -104,6 +105,9 @@
 
     function handleSwipeEnd() {
         if (swipeOpacity == 1) {
+            if (!afterFirstSwipe) {
+                afterFirstSwipe = true;
+            }
             changeProjectVideo(swipeDirection);
         }
         isSwiping = false;
@@ -203,7 +207,7 @@
 </header>
 
 <section class="mt-24 flex flex-col gap-4">
-    <div class="flex justify-between items-center">
+    <div class="flex justify-between items-center min-h-8">
         <div class="flex gap-3 items-center">
             <div 
                 class="w-7 h-7 bg-surface-600 rounded-sm flex justify-center items-center"
@@ -262,7 +266,7 @@
 
         <!-- Mobile video controls -->
         <div 
-            class="w-full h-full md:hidde absolute top-0 left-0 z-20 cursor-pointer"
+            class="w-full h-full md:hidden absolute top-0 left-0 z-20 cursor-pointer"
             role="presentation"
             on:click={() => {
                 if (swipeDeltaX == 0){
@@ -285,15 +289,18 @@
                     }
                 }
             }}
-
             on:mouseleave={() => isSwiping ? handleSwipeEnd() : null}
             on:mouseup={() => isSwiping ? handleSwipeEnd() : null}
+            on:touchend={() => isSwiping ? handleSwipeEnd() : null}
+            on:touchcancel={() => isSwiping ? handleSwipeEnd() : null}
         >
             <button 
                 class="w-1/3 h-full absolute top-0 left-0 cursor-grab active:cursor-grabbing"
                 aria-label="Swipe navigation control"
                 on:mousedown={() => handleSwipeStart(-1)}
+                on:touchstart|preventDefault={() => handleSwipeStart(-1)}
                 on:mouseup={() => handleSwipeEnd()}
+                on:touchend={() => handleSwipeEnd()}
                 type="button"
             >
                 <div 
@@ -308,7 +315,9 @@
                 class="w-1/3 h-full absolute top-0 right-0 cursor-grab active:cursor-grabbing"
                 aria-label="Swipe navigation control"
                 on:mousedown={() => handleSwipeStart(1)}
+                on:touchstart|preventDefault={() => handleSwipeStart(1)}
                 on:mouseup={() => handleSwipeEnd()}
+                on:touchend={() => handleSwipeEnd()}
                 type="button"
             >
                 <div 
@@ -444,7 +453,7 @@
             style:transition-timing-function={'cubic-bezier(0.16, 1, 0.3, 1)'}
         ></div>
     </div>
-    <div class="flex justify-left min-h-8">
+    <div class="flex justify-between items-center min-h-8">
         {#if projects[activeProjectIndex].urlLabel}
             <a 
                 href={projects[activeProjectIndex].url} 
@@ -457,6 +466,10 @@
                 {projects[activeProjectIndex].urlLabel}
             </a>
         {/if}
+        <p 
+            class="text-sm md:hidden flex text-right"
+            style:opacity={!afterFirstSwipe ? 0.3 : 0}
+        >Trying swiping left and right on the video</p>
     </div>
 </section>
 
