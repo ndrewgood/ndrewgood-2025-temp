@@ -20,6 +20,7 @@ interface Social {
 
 interface Project {
     name: string;
+    description: string;
     url?: string;
     urlLabel?: string;
     icon: string;
@@ -43,12 +44,50 @@ export const socials: Social[] = [
 ];
 
 export const projects: Project[] = [
-    {name: 'Mockbox', url: 'https://mockbox.app', urlLabel: 'mockbox.app', icon: mockboxIcon, muxID: 'CcyyWriJtLaBxiuqDSOWNL1hlY3IjfSMzx3riBJqKFg'},
-    {name: '258 Zine', url: 'https://258-zine.vercel.app', urlLabel: '258-zine.vercel.app', icon: zineIcon, muxID: 'NIg02Zef7fuDcGFgAaP4dat00jvg0100jrUA235J7vJTF00E'},
-    {name: 'Various sketches', icon: sketchesIcon, muxID: 'UIL01hQXMCqMgr3GxVUJb35U027bDNvIKCDiP7ymVMCyc'},
-    {name: 'SCAD FLUX', icon: fluxIcon, url: 'https://scadflux.com', urlLabel: 'scadflux.com', muxID: 'VzFZjv9JLKPjtssJQOzlUckeep9RgmgPIqkRxQIwA4I'},
-    {name: 'CoShuffler', icon: coshufflerIcon, url: 'https://www.figma.com/community/plugin/974496433337884240/coshuffler', urlLabel: 'Figma community page', muxID: 'x7qlhrctWFtNyvBGLMNqsWDY01cjQsgN85T00re004phyw'},
-    {name: 'Pixel Bloom', icon: pixelbloomIcon, muxID: 'WOAyqsQQ1tO02y8oZIrf7zPCXAuj6AfAdUI54GVuKXiA'},
+    {
+        name: 'Mockbox',
+        description: 'A web tool for mocking up box-shaped objects',
+        url: 'https://mockbox.app',
+        urlLabel: 'mockbox.app',
+        icon: mockboxIcon,
+        muxID: 'CcyyWriJtLaBxiuqDSOWNL1hlY3IjfSMzx3riBJqKFg'
+    },
+    {
+        name: '258 Zine',
+        description: 'A website for a zine showcasing 6 unique artists',
+        url: 'https://258-zine.vercel.app',
+        urlLabel: '258-zine.vercel.app',
+        icon: zineIcon,
+        muxID: 'NIg02Zef7fuDcGFgAaP4dat00jvg0100jrUA235J7vJTF00E'
+    },
+    {
+        name: 'Various sketches',
+        description: 'A variety of graphic, motion, and web demos',
+        icon: sketchesIcon,
+        muxID: 'UIL01hQXMCqMgr3GxVUJb35U027bDNvIKCDiP7ymVMCyc'
+    },
+    {
+        name: 'SCAD FLUX',
+        description: 'A website for SCAD\'s UX design club',
+        icon: fluxIcon,
+        url: 'https://scadflux.com',
+        urlLabel: 'scadflux.com',
+        muxID: 'VzFZjv9JLKPjtssJQOzlUckeep9RgmgPIqkRxQIwA4I'
+    },
+    {
+        name: 'CoShuffler',
+        description: 'A Figma plugin for randomizing colors from a palette',
+        icon: coshufflerIcon,
+        url: 'https://www.figma.com/community/plugin/974496433337884240/coshuffler',
+        urlLabel: 'Figma community page',
+        muxID: 'x7qlhrctWFtNyvBGLMNqsWDY01cjQsgN85T00re004phyw'
+    },
+    {
+        name: 'Pixel Bloom',
+        description: 'An interactive display which generates flowers',
+        icon: pixelbloomIcon,
+        muxID: 'WOAyqsQQ1tO02y8oZIrf7zPCXAuj6AfAdUI54GVuKXiA'
+    },
 ];
 
 export const portfolios: Portfolio[] = [

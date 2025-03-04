@@ -1,13 +1,15 @@
 @import 'tailwindcss';
 
 @theme {
-    --font-aspekta: "Aspekta", sans-serif;
-    --color-surface: #F2EDEA;
-    --color-surface-550: #ECDFDC;
-    --color-surface-600: #E4D5D2;
-    --color-surface-700: #bbb3b1;
-    --color-primary: #473828;
-    --color-activeSymbol: #18D651;
+  --breakpoint-xs: 430px;
+
+  --font-aspekta: "Aspekta", sans-serif;
+  --color-surface: #F2EDEA;
+  --color-surface-550: #ECDFDC;
+  --color-surface-600: #E4D5D2;
+  --color-surface-700: #bbb3b1;
+  --color-primary: #473828;
+  --color-activeSymbol: #18D651;
 
 
 }
@@ -17,7 +19,7 @@
     --color-surface: #F2EDEA;
     --color-primary: #473828;
     --color-activeSymbol: #18D651;
-    --text-xl: 1.3rem;
+    --text-xl: 1.2rem;
     --text-lg: 1.1rem;
     --text-md: 1rem;
     --text-sm: 0.9rem;
