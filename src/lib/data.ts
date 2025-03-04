@@ -76,7 +76,7 @@ export const projects: Project[] = [
     },
     {
         name: 'CoShuffler',
-        description: 'A Figma plugin for randomizing colors from a palette',
+        description: 'A Figma plugin for randomizing palette colors',
         icon: coshufflerIcon,
         url: 'https://www.figma.com/community/plugin/974496433337884240/coshuffler',
         urlLabel: 'Figma community page',

@@ -249,7 +249,7 @@
 </header>
 
 <section class="mt-16 flex flex-col gap-4">
-    <div class="flex justify-between items-center min-h-16 xs:min-h-11">
+    <div class="flex justify-between items-center min-h-12">
         <div class="flex gap-3 items-start">
             <div 
                 class="w-9 h-9 min-w-9 min-h-9 rounded-sm flex justify-center items-center"
