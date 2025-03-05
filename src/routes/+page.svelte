@@ -1,6 +1,7 @@
 <script lang="ts">
     import "@mux/mux-player"
     import { onMount, onDestroy } from 'svelte';
+    import { browser } from '$app/environment';
 
 	import Icon from '$lib/components/Icon.svelte';
     import { portfolios, socials, projects } from '$lib/data';
@@ -11,6 +12,18 @@
     let showSocials = false;
     let socialTimer: ReturnType<typeof setTimeout> | null = null;
     let socialHover = false;
+    let socialIconHover = false;
+    let emailCopied = false;
+
+    type SocialHover = {
+        platform: string;
+        index: number;
+    };
+
+    let activeSocialHover: SocialHover = {
+        platform: 'Instagram',
+        index: 0
+    };
 
     function handleLinksMouseLeave() {
         if (showSocials) {
@@ -25,6 +38,14 @@
             clearTimeout(socialTimer);
             socialTimer = null;
         }
+    }
+
+    function handleEmailClick() {
+        navigator.clipboard.writeText('hey@ndrewgood.com');
+        emailCopied = true;
+        setTimeout(() => {
+            emailCopied = false;
+        }, 2000);
     }
 
     // Projects
@@ -43,7 +64,13 @@
     let isHoveringOverVideo = false;
     let hoverIcon = 'pause';
 
-    onMount(() => {
+    let Lottie: any; // Add type declaration
+
+    onMount(async () => {
+        if (browser) {
+            const module = await import('lottie-svelte');
+            Lottie = module.Lottie;
+        }
         timeUpdateInterval = setInterval(() => {
             currentTime = player?.currentTime || 0;
             if (currentTime > currentDuration - .2 && currentDuration > 10 && !isTransitioning) {
@@ -79,7 +106,7 @@
 
     // Projects - Mobile swipe
 
-    const SWIPE_SCALE_MIN = 2;
+    const SWIPE_SCALE_MIN = 1.5;
     const SWIPE_SCALE_MAX = 3;
     const SWIPE_SCALE_DIST = 100;
 
@@ -193,19 +220,18 @@
         role="navigation"
     >
         {#if !showSocials}
-            
             <div
                 in:fly|local={{ duration: 300, y: 10, delay: 100 }}
                 out:fly|local={{ duration: 300, y: -10, opacity: 0 }}
             >
             {#if socialHover}
-            <p 
-                class="absolute right-8 w-max h-6 p-0.5 opacity-50 select-none"
-                in:fly={{ duration: 200, x: 5, delay: 0 }}
-                out:fly={{ duration: 200, x: 5, opacity: 0 }}
-            >
-                Show socials
-            </p>
+                <p 
+                    class="absolute right-8 w-max h-6 p-0.5 opacity-50 select-none"
+                    in:fly={{ duration: 200, x: 5, delay: 0 }}
+                    out:fly={{ duration: 200, x: 5, opacity: 0 }}
+                >
+                    Show socials
+                </p>
             {/if}
             <button 
                 on:click={() => showSocials = true}
@@ -218,13 +244,21 @@
         </div>
         {/if}
         {#if showSocials}
-        <div class="flex flex-row-reverse gap-1">
+        <div class="flex flex-row-reverse gap-0">
             {#each socials as social, index}
                 {#if social.platform === 'email'}
                     <button 
                         class="icon-button"
+                        on:mouseenter={() => {
+                            activeSocialHover = {platform: social.platform, index: index};
+                            socialIconHover = true;
+                        }}
+                        on:mouseleave={() => {
+                            socialIconHover = false;
+                        }}
                         on:click={() => {
                             navigator.clipboard.writeText('hey@ndrewgood.com');
+                            handleEmailClick();
                         }}
                         in:fly|global={{ duration: 300, y: 10, delay: 15 * index + 100 }}
                         out:fly|global={{ duration: 300, y: -10, delay: 15 * index }}
@@ -233,6 +267,13 @@
                     </button>
                 {:else}
                     <a 
+                        on:mouseenter={() => {
+                            activeSocialHover = {platform: social.platform, index: index};
+                            socialIconHover = true;
+                        }}  
+                        on:mouseleave={() => {
+                            socialIconHover = false;
+                        }}
                         href={social.url}
                         target="_blank"
                         class="icon-button"
@@ -243,6 +284,15 @@
                     </a>
                 {/if}
             {/each}
+            <p class="absolute -bottom-2 translate-x-1/2 opacity-50 select-none whitespace-nowrap"
+            style:right={`${16 + (32 * (activeSocialHover?.index ?? 0))}px`}
+            style:opacity={socialIconHover && showSocials ? 0.5 : 0}
+            style:transition={'right 0.1s cubic-bezier(0.16, 1, 0.3, 1), transform 0.1s ease-in-out, opacity 0.2s ease-in-out'}
+            style:transition-timing-function={'cubic-bezier(0.16, 1, 0.3, 1)'}
+
+            >
+                {emailCopied ? 'Copied to clipboard' : (activeSocialHover?.platform ?? '')[0].toUpperCase() + (activeSocialHover?.platform ?? '').slice(1)}
+            </p>
         </div>
         {/if}
     </div>
@@ -251,17 +301,31 @@
 <section class="mt-16 flex flex-col gap-4">
     <div class="flex justify-between items-center min-h-12">
         <div class="flex gap-3 items-start">
-            <div 
-                class="w-9 h-9 min-w-9 min-h-9 rounded-sm flex justify-center items-center"
-            >
-                <img 
-                    src={projects[activeProjectIndex].icon}
-                    alt={projects[activeProjectIndex].name} 
-                    style:opacity={isTransitioning || isLoading ? '0' : '1'}
-                    style:transition={'opacity 0.1s ease-in-out'}
-                    class="pointer-events-none select-none"
-                />
-            </div>
+            {#if projects[activeProjectIndex].url}
+                <a 
+                    href={projects[activeProjectIndex].url}
+                    target="_blank"
+                    class="w-9 h-9 min-w-9 min-h-9 rounded-sm flex justify-center items-center"
+                >
+                    <img 
+                        src={projects[activeProjectIndex].icon}
+                        alt={projects[activeProjectIndex].name} 
+                        style:opacity={isTransitioning || isLoading ? '0' : '1'}
+                        style:transition={'opacity 0.1s ease-in-out'}
+                        class="pointer-events-none select-none"
+                    />
+                </a>
+            {:else}
+                <div class="w-9 h-9 min-w-9 min-h-9 rounded-sm flex justify-center items-center">
+                    <img 
+                        src={projects[activeProjectIndex].icon}
+                        alt={projects[activeProjectIndex].name} 
+                        style:opacity={isTransitioning || isLoading ? '0' : '1'}
+                        style:transition={'opacity 0.1s ease-in-out'}
+                        class="pointer-events-none select-none"
+                    />
+                </div>
+            {/if}
             {#if !isTransitioning && !isLoading}
                 <div 
                     class="flex flex-col gap-0 select-none"
@@ -279,10 +343,10 @@
                 target="_blank" 
                 in:fade|global={{ duration: 100 }}
                 out:fade|global={{ duration: 100 }}
-                class="text-sm md:flex hidden gap-1 items-center font-medium bg-surface-600 hover:bg-surface-700 transition-colors duration-150 pr-4 pl-1 py-1 rounded-full opacity-50"
+                class="text-sm md:flex hidden gap-1 items-center font-medium bg-surface-550 hover:bg-surface-600 transition-colors duration-150 pr-3 pl-2 py-1 rounded-full group"
             >
-                <Icon name="globe" />
-                {projects[activeProjectIndex].urlLabel}
+                <Icon name="globe" class="opacity-50 group-hover:opacity-100 transition-opacity duration-150" />
+                <p class="opacity-50 group-hover:opacity-100 transition-opacity duration-150">{projects[activeProjectIndex].urlLabel}</p>
             </a>
         {/if}
         <!-- {#if !isTransitioning && !isLoading}
@@ -411,20 +475,23 @@
             style:transition-timing-function={'cubic-bezier(0.16, 1, 0.3, 1)'}
         >
             <!-- Mobile help overlay -->
-            {#if showHelpOverlay}
-            <div 
-                class="absolute top-0 left-0 w-full flex justify-center items-end p-4 h-full z-10 transition-colors duration-150 bg-black/40"
-                in:fade={{ duration: 200 }}
-                out:fade={{ duration: 200 }}
-            >
-                <p 
-                    class="text-sm text-white font-medium"
-                    in:fly={{ duration: 200, y: currentDirection === 1 ? 5 : -5, delay: 0 }}
-                    out:fly={{ duration: 200, y: currentDirection === 1 ? -5 : 5, opacity: 0 }}
-                >
-                    Swipe to navigate
-                </p>
-        </div>
+            {#if showHelpOverlay && browser && Lottie}
+                    <div 
+                        class="absolute bottom-0 left-0 w-full h-full md:hidden z-10 transition-colors duration-150 bg-black/40"
+                        in:fade={{ duration: 200 }}
+                        out:fade={{ duration: 200 }}
+                    >
+                        <div class="w-48 h-48 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                            <Lottie path="/lottie/data.json" speed={1}/>
+                        </div>
+                        <p 
+                            class="text-sm text-white font-medium absolute bottom-0 left-1/2 -translate-x-1/2 p-4"
+                            in:fly={{ duration: 200, y: currentDirection === 1 ? 5 : -5, delay: 0 }}
+                            out:fly={{ duration: 200, y: currentDirection === 1 ? -5 : 5, opacity: 0 }}
+                        >
+                            Swipe to navigate
+                        </p>
+                    </div>
             {/if}
             <div class="absolute top-0 left-0 w-full h-full z-10 transition-colors duration-150"
                 style:background-color={isHoveringOverVideo ? 'rgba(0, 0, 0, 0.2)' : isSwiping && (swipeDeltaX > 5 || swipeDeltaX < -5) ? 'rgba(0, 0, 0, 0.4)' : 'rgba(0, 0, 0, 0)'}
@@ -446,19 +513,6 @@
                 preload="auto"
             ></mux-player>
         </div>
-
-        <!-- <div 
-            class="absolute top-1/2 -translate-y-1/2 bg-surface-600 w-full h-[calc(100%-30px)] -z-10 rounded-xl"
-            style:left={isHoveringOverVideo && !isTransitioning && !isLoading && hoverIcon === "backwards" ? '-30px' : isHoveringOverVideo && !isTransitioning && !isLoading && hoverIcon === "forwards" ? '30px' : '0px'}
-            style:transform={isHoveringOverVideo && !isPlaying && hoverIcon === "backwards" ? 'rotate(-1deg) scale(0.97)'
-                : isHoveringOverVideo && !isTransitioning && !isLoading && hoverIcon === "backwards" ? 'rotate(-1deg)'
-                    : isHoveringOverVideo && !isPlaying && hoverIcon === "forwards" ? 'rotate(1deg) scale(0.97)' 
-                        : isHoveringOverVideo && !isTransitioning && !isLoading && hoverIcon === "forwards" ? 'rotate(1deg)' 
-                            : isTransitioning || isLoading || !isPlaying ? 'scale(0.97)' : 'scale(1)'}
-            style:transition={'left 0.3s ease-in-out, transform 0.3s ease-in-out'}
-            style:transition-timing-function={'cubic-bezier(0.16, 1, 0.3, 1)'}
-        ></div> -->
-
         <div 
             class="absolute left-0 top-0 bg-surface-600 w-full -z-10 aspect-[4/3] rounded-xl"
             style:transform={isTransitioning || isLoading || !isPlaying ? 'scale(0.97)' : 'scale(1)'}
@@ -477,9 +531,9 @@
             >
                 <div
                     class="h-1.5 rounded-full absolute left-0 top-0"
-                    style:background-color={'var(--color-activeSymbol)'}
+                    style:background-color={'var(--color-highlightGreen)'}
                     style:opacity={index === activeProjectIndex ? '1' : '0'}
-                    style:box-shadow={index === activeProjectIndex ? 'var(--drop-shadow-activeSymbol)' : 'none'}
+                    style:box-shadow={index === activeProjectIndex ? 'var(--drop-shadow-highlightGreen)' : 'none'}
                     style:width={`${currentTime / currentDuration * 100}%`}
                     style:transition={'opacity 0.1s ease-in-out'}
                 >

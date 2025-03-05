@@ -4,27 +4,29 @@
   --breakpoint-xs: 430px;
 
   --font-aspekta: "Aspekta", sans-serif;
-  --color-surface: #F2EDEA;
-  --color-surface-550: #ECDFDC;
-  --color-surface-600: #E4D5D2;
-  --color-surface-700: #bbb3b1;
-  --color-primary: #473828;
-  --color-activeSymbol: #18D651;
+  --color-surface: #F2F2ED;
+  --color-surface-550: #EBE7E1;
+  --color-surface-600: #DDD9CF;
+  --color-primary: #3D2F21;
+  --color-highlightGreen: #29E652;
+  --color-highlightPurple: #B77CFF;
 
 
 }
 
 @layer base {
   :root {
-    --color-surface: #F2EDEA;
-    --color-primary: #473828;
-    --color-activeSymbol: #18D651;
+    --color-surface: #F2F2ED;
+    --color-primary: #3D2F21;
+    --color-highlightGreen: #29E652;
+    --color-highlightPurple: #B77CFF;
     --text-xl: 1.2rem;
     --text-lg: 1.1rem;
     --text-md: 1rem;
     --text-sm: 0.9rem;
 
-    --drop-shadow-activeSymbol: 0 0 4px 2px rgba(62, 234, 114, 0.5); 
+    --drop-shadow-highlightGreen: 0 0 4px 2px rgba(41, 230, 82, 0.3);
+    --drop-shadow-videoContainer: 0px 4px 20px 0px rgba(0, 0, 0, 0.1);
   }
 
 }
@@ -56,7 +58,7 @@
     }
 
     .icon-button {
-      @apply opacity-50 hover:opacity-100 transition-opacity duration-150 cursor-pointer h-6 p-0.5;
+      @apply opacity-50 hover:opacity-100 transition-opacity duration-150 cursor-pointer h-6 py-0.5 px-1;
     }
     
 }
