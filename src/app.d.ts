@@ -10,4 +10,6 @@ declare global {
 	}
 }
 
+declare module '@lottiefiles/svelte-lottie-player';
+
 export {};

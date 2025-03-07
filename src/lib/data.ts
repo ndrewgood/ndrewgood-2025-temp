@@ -39,7 +39,7 @@ export const socials: Social[] = [
     { platform: 'instagram', url: 'https://instagram.com/ndrewgood', icon: 'instagram' },
     { platform: 'linkedin', url: 'https://linkedin.com/in/ndrewgood', icon: 'linkedin' },
     { platform: 'bluesky', url: 'https://bsky.app/profile/ndrewgood.com', icon: 'bluesky'},
-    { platform: 'arena', url: 'https://www.are.na/andrew-goodridge/channels', icon: 'arena'},
+    { platform: 'are.na', url: 'https://www.are.na/andrew-goodridge/channels', icon: 'arena'},
     { platform: 'email', icon: 'email'}
 ];
 

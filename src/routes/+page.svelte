@@ -82,7 +82,7 @@
             showHelpOverlay = true;
             helpOverlayTimer = setTimeout(() => {
                 showHelpOverlay = false;
-            }, 3000);
+            }, 2500);
         }, 2000);
     });
 
@@ -280,7 +280,7 @@
                         in:fly|global={{ duration: 300, y: 10, delay: 15 * index + 100 }}
                         out:fly|global={{ duration: 300, y: -10, delay: 15 * index }}
                     >
-                        <Icon name={social.platform} />
+                        <Icon name={social.icon} />
                     </a>
                 {/if}
             {/each}
@@ -481,8 +481,8 @@
                         in:fade={{ duration: 200 }}
                         out:fade={{ duration: 200 }}
                     >
-                        <div class="w-48 h-48 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                            <Lottie path="/lottie/data.json" speed={1}/>
+                        <div class="w-20 h-20 absolute bottom-2 left-1/2 -translate-x-1/2">
+                            <Lottie path="/lottie/data.json" loop={false} speed={1}/>
                         </div>
                         <p 
                             class="text-sm text-white font-medium absolute bottom-0 left-1/2 -translate-x-1/2 p-4"
@@ -619,6 +619,10 @@
       font-family: var(--font-aspekta);
       background-color: var(--color-surface);
       color: var(--color-primary);
+    }
+
+    :global(::selection) {
+        background-color: var(--color-highlightPurple);
     }
 
     :global(body) {
