@@ -91,7 +91,7 @@ export const projects: Project[] = [
 ];
 
 export const portfolios: Portfolio[] = [
-    { label: 'My first website', url: 'https://2017.ndrewgood.com', range: 'Nov. 2017 - July 2018', stack: 'Jekyll, Github Pages', icon: portfolio2017Icon },
+    { label: 'My first website', url: 'https://ndrewgood.github.io/pwb2/', range: 'Nov. 2017 - July 2018', stack: 'Jekyll, Github Pages', icon: portfolio2017Icon },
     { label: 'First React website', url: 'https://2018.ndrewgood.com', range: 'July 2018 - Sept. 2018', stack: 'Gatsby, Github Pages', icon: portfolio2018Icon },
     { label: 'Freshman year portfolio', url: 'https://2019.ndrewgood.com', range: 'Sept. 2018 - Aug. 2019 ', stack: 'Vanilla, Github Pages', icon: portfolio2019Icon },
     { label: 'Sophomore year portfolio', url: 'https://2020.ndrewgood.com', range: 'Aug. 2019 - July 2020', stack: 'Vanilla, Firebase', icon: portfolio2020Icon },
